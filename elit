@@ -3,8 +3,15 @@
 # Created By: Lane Birmingham
 # Created Date: 22/01/2022
 
+import sys
+
 def tile_to_32bytes():
     '''reads stdin for a 10x10 tile file, converts to 32 byte file, then outputs DATA to stdout'''
+
+    # read lines of stdin into a list
+    input_tile = [line.rstrip() for line in sys.stdin]
+    print(input_tile) #TODO: remove in final version
+
 
 if __name__ == '__main__':
     tile_to_32bytes()
