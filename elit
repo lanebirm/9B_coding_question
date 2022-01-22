@@ -2,6 +2,7 @@
 
 # Created By: Lane Birmingham
 # Created Date: 22/01/2022
+# Python Version: 3.8.10
 
 import sys
 import hashlib
