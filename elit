@@ -4,14 +4,74 @@
 # Created Date: 22/01/2022
 
 import sys
+import hashlib
 
 def tile_to_32bytes():
     '''reads stdin for a 10x10 tile file, converts to 32 byte file, then outputs DATA to stdout'''
 
     # read lines of stdin into a list
     input_tile = [line.rstrip() for line in sys.stdin]
-    print(input_tile) #TODO: remove in final version
 
+    # basic sanity checks to make sure stdin is of expected format
+    if not check_tile_list(input_tile, 10):
+        print(f"stdin given in list of lines format is: {input_tile}")
+        print("stdin is not a tile of expected format. Exiting")
+        sys.exit()
+    
+    # extract the 8x8 tile and convert to hexdecimal
+    tile_8x8 = ""
+    # take characters 1-9 of lines 1-9
+    for i in range(1, 9):
+        tile_8x8 += input_tile[i][1:9]
+
+    # convert to binary
+    data = bytes.fromhex(tile_8x8)
+
+    # extract checksum string
+    checksum_string = extract_checksum_from_10x10_tile(input_tile)
+
+    # compare the checksum to the first 4 bytes of the DATA sha256. Comparing in hex string form
+    if checksum_string != hashlib.sha256(data).hexdigest()[0:8]:
+        print("Checksum does not match the first 4 bytes of the DATA sha256. Exiting script")
+        sys.exit()
+
+    # check all MIDDLE DOTS are in the input tile
+    if "".join(input_tile).count("·") != 28:
+        print("Incorrect number of MIDDLE DOTS found in tile. Exiting script")
+        sys.exit()
+
+    # write DATA to stdout as binary
+    sys.stdout.buffer.write(data)
+
+
+def extract_checksum_from_10x10_tile(input_tile):
+    '''Takes a 10x10 square tile in list of strings form and extracts checksum value
+       Assumes checksum is made up of {N, E, S, W} value pairs   
+    '''
+
+    # extract pairs
+    N = input_tile[0][4:6]
+    E = input_tile[4][-1] + input_tile[5][-1]
+    W = input_tile[4][0] + input_tile[5][0]
+    S = input_tile[-1][4:6]
+
+    # return as string
+    return (N+E+S+W)
+
+def check_tile_list(tile_list, size):
+    '''Checks that a given tile in list format is the expected size and data type
+       Returns Bool'''
+
+    # check list size
+    if not len(tile_list) == size:
+        return False
+
+    # check size and type of list values 
+    for value in tile_list:
+        if not isinstance(value, str) or not len(value) == size:
+            return False
+
+    return True
 
 if __name__ == '__main__':
     tile_to_32bytes()

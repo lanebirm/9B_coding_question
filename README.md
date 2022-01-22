@@ -14,8 +14,10 @@ To be able to run the python scripts with commands as outlined in the coding que
 This link can be setup and execution permisions with the following commands.
 
 Ubuntu commands where $REPO_LOCATION = location of cloned repo. (Some commands may need to be run with sudo privileges depending on your system):
+```
 $ cd $REPO_LOCATION
 $ chmod +x test_script
 $ cd /usr/local/bin
 $ ln -s $REPO_LOCATION/test_script .
 $ cd $REPO_LOCATION
+```
