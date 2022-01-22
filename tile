@@ -3,8 +3,69 @@
 # Created By: Lane Birmingham
 # Created Date: 22/01/2022
 
+import sys
+import hashlib
+
 def bytes32_to_tile():
     '''reads stdin of a 32 byte file, converts to 10x10 tile, then outputs TILE to stdout'''
+
+    # read lines of stdin into a list
+    input_data = sys.stdin.buffer.read()
+
+    # basic sanity checks to make sure stdin is of expected format
+    if not check_data(input_data, 32):
+        print(f"stdin given in list of lines format is: {input_data}")
+        print("stdin is not 32bytes data of expected format. Exiting")
+        sys.exit()
+
+    # get HASH as hexadecimal representation 
+    hash_value = hashlib.sha256(input_data).hexdigest()
+
+    # task 4 most significant bytes (8 hexadecimal characters) as the CHECKSUM
+    checksum = hash_value[0:8]
+    
+    # setup 10x10 tile as a list of 10 empty strings
+    tile = [""]*10
+    
+    # fill in center 8 rows of tile list with DATA. MIDDLE DOTS on start and end
+    for i in range(1, 9):
+        tile[i] = "·" + input_data.hex()[(0+(i-1)*8):(8+(i-1)*8)] + "·"
+
+    # insert checksum
+    insert_checksum_into_tile(tile, checksum)
+
+    # join tile to single string with newline characters between lines
+    output_tile = ""
+    for tile_line in tile:
+        output_tile += tile_line + "\n"
+
+    # write TILE to stdout
+    sys.stdout.write(output_tile)
+
+def insert_checksum_into_tile(tile, checksum):
+    '''Tasks 10x10 tile as list of hexdecimal string and checksum as hexadecimal string and inserts in {N,E,S,W} pattern'''
+
+    # fill N
+    tile[0] = "·"*4 + checksum[0:2] + "·"*4
+    # fill E
+    tile[4] = tile[4][0:9] + checksum[2]
+    tile[5] = tile[5][0:9] + checksum[3]
+    # fill S
+    tile[9] = "·"*4 + checksum[4:6] + "·"*4
+    # fill W
+    tile[4] = checksum[6] + tile[4][1:10]
+    tile[5] = checksum[7] + tile[5][1:10]
+
+
+def check_data(input_data, bytes_size):
+    '''Checks that given data is the expected size and data type
+       Returns Bool'''
+
+    # check size and type of value
+    if not isinstance(input_data, bytes) or not len(input_data) == bytes_size:
+        return False
+
+    return True
 
 if __name__ == '__main__':
     bytes32_to_tile()
